@@ -1,0 +1,26 @@
+---
+title: "gitpractice"
+format: pdf
+editor: visual
+---
+
+```{r}
+library(here)
+library(tidyverse)
+
+# read in data
+p301 = read_csv(here("Week2", "p301.csv"))
+
+# aggregate by water year
+p301_yearly <- p301 %>%
+  group_by(wy) %>%
+  summarise(total_streamflow = sum(streamflow),
+            total_precip = sum(precip),
+            percent_streamflow = (total_streamflow / total_precip) * 100)
+
+# calculate mean, range and standard deviation of percent streamflow across...
+mean(p301_yearly$percent_streamflow) # [1] 25.50839
+range(p301_yearly$percent_streamflow) # [1]  0.00000 59.61193
+sd(p301_yearly$percent_streamflow) # [1] 18.96631
+```
+
