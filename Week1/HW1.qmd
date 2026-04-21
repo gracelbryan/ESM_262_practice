@@ -61,13 +61,11 @@ This visualization shows us that the local fitting model (loess) fits the relati
 
 Next, we ran statistical tests to determine if the more complex model (with curvature) actually explains the data better than the linear one. The ANOVA test evaluates whether the squared temperature term reduces the unexplained variation enough to justify the extra complexity. Null hypothesis: The quadratic term doesn’t help. The relationship is basically linear. Alternative: The quadratic term improves the model. The relationship is curved.
 
-<!--potential change-->
-
-```{=html}
-<!--...justify the extra complexity. 
+<!--potential change
+...justify the extra complexity. 
 **Null hypothesis:** The quadratic term does not improve the model (the relationship is basically linear). 
 **Alternative hypothesis:** The quadratic term improves the model (the relationship is curved).-->
-```
+
 
 ```{r}
 model1 <- lm(NPP ~ temp_mean, data = watershed) #linear model
