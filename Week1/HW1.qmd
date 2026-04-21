@@ -10,7 +10,7 @@ editor: visual
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-## Introduction
+# Introduction
 
 This analysis explores how environmental factors influence ecosystem carbon dynamics in a Sierra Nevada watershed. Specifically, we examine how temperature affects plant carbon storage and how solar radiation influences net primary productivity (NPP). Temperature can impact metabolic rates and plant growth, while solar radiation drives photosynthesis. Understanding these relationships helps explain patterns of carbon uptake and storage in forest ecosystems.
 
@@ -29,8 +29,7 @@ watershed <- read_csv(here("HW1","data", "p301.csv")) |>
 
 ## Analysis 1
 
-**How does average temperature impact carbon uptake of plants (measured by NPP)?**
-Visualization: Does uptake increase with temperature? Is there a peak (optimal temperature)? Does it flatten or decline at high temperatures?
+**How does average temperature impact carbon uptake of plants (measured by NPP)?** Visualization: Does uptake increase with temperature? Is there a peak (optimal temperature)? Does it flatten or decline at high temperatures?
 
 ```{r}
 loess_plot <- ggplot(watershed, aes(x = temp_mean, y = NPP)) +
@@ -63,10 +62,12 @@ This visualization shows us that the local fitting model (loess) fits the relati
 Next, we ran statistical tests to determine if the more complex model (with curvature) actually explains the data better than the linear one. The ANOVA test evaluates whether the squared temperature term reduces the unexplained variation enough to justify the extra complexity. Null hypothesis: The quadratic term doesn’t help. The relationship is basically linear. Alternative: The quadratic term improves the model. The relationship is curved.
 
 <!--potential change-->
+
+```{=html}
 <!--...justify the extra complexity. 
 **Null hypothesis:** The quadratic term does not improve the model (the relationship is basically linear). 
 **Alternative hypothesis:** The quadratic term improves the model (the relationship is curved).-->
-
+```
 
 ```{r}
 model1 <- lm(NPP ~ temp_mean, data = watershed) #linear model
@@ -77,6 +78,7 @@ summary(model1) # R_sq: 0.1634; p-value: < 2.2e-16
 model2 <- lm(NPP ~ temp_mean + I(temp_mean^2), data = watershed) #quadratic model allows for
 summary(model2) #R_sq: 0.2121; p-value: < 2.2e-16
 ```
+
 ```{r}
 anova(model1, model2) #F_stat: 1009.7; p-value: < 2.2e-16
 ```
