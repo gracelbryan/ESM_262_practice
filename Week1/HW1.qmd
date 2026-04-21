@@ -1,0 +1,181 @@
+---
+title: "Assignment 1: Quarto Data Analysis"
+author: "Grace Bryan and Christina Treacy"
+date: "April 20, 2026"
+format: pdf
+editor: visual
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Introduction
+
+This analysis explores how environmental factors influence ecosystem carbon dynamics in a Sierra Nevada watershed. Specifically, we examine how temperature affects plant carbon storage and how solar radiation influences net primary productivity (NPP). Temperature can impact metabolic rates and plant growth, while solar radiation drives photosynthesis. Understanding these relationships helps explain patterns of carbon uptake and storage in forest ecosystems.
+
+## Load Data
+
+```{r}
+#| label: load-packages and data
+
+library(here)
+library(tidyverse)
+library(patchwork)
+
+watershed <- read_csv(here("HW1","data", "p301.csv")) |>
+  mutate(temp_mean = (tmax + tmin) / 2)
+```
+
+## Analysis 1
+
+**How does average temperature impact carbon uptake of plants (measured by NPP)?**
+Visualization: Does uptake increase with temperature? Is there a peak (optimal temperature)? Does it flatten or decline at high temperatures?
+
+```{r}
+loess_plot <- ggplot(watershed, aes(x = temp_mean, y = NPP)) +
+geom_point(alpha = 0.5) +
+geom_smooth(method = "loess") +
+labs(
+title = "Carbon Uptake vs Temperature",
+x = "Mean Temperature (°C)",
+y = "Net Primary Productivity (NPP)"
+) +
+theme_minimal()
+loess_plot
+```
+
+```{r}
+linear_plot <- ggplot(watershed, aes(x = temp_mean, y = NPP)) +
+geom_point(alpha = 0.5) +
+geom_smooth(method = "lm") +
+labs(
+title = "Carbon Uptake vs Temperature",
+x = "Mean Temperature (°C)",
+y = "Net Primary Productivity (NPP)"
+) +
+theme_minimal()
+linear_plot
+```
+
+This visualization shows us that the local fitting model (loess) fits the relationship much better than a linear model, suggesting that there are additional factors impacting the relationship between temperature and NPP.
+
+Next, we ran statistical tests to determine if the more complex model (with curvature) actually explains the data better than the linear one. The ANOVA test evaluates whether the squared temperature term reduces the unexplained variation enough to justify the extra complexity. Null hypothesis: The quadratic term doesn’t help. The relationship is basically linear. Alternative: The quadratic term improves the model. The relationship is curved.
+
+<!--potential change-->
+<!--...justify the extra complexity. 
+**Null hypothesis:** The quadratic term does not improve the model (the relationship is basically linear). 
+**Alternative hypothesis:** The quadratic term improves the model (the relationship is curved).-->
+
+
+```{r}
+model1 <- lm(NPP ~ temp_mean, data = watershed) #linear model
+summary(model1) # R_sq: 0.1634; p-value: < 2.2e-16
+```
+
+```{r}
+model2 <- lm(NPP ~ temp_mean + I(temp_mean^2), data = watershed) #quadratic model allows for
+summary(model2) #R_sq: 0.2121; p-value: < 2.2e-16
+```
+```{r}
+anova(model1, model2) #F_stat: 1009.7; p-value: < 2.2e-16
+```
+
+### Interpretation
+
+This analysis explores how plant carbon uptake (NPP) responds to temperature in a Sierra Nevada watershed. I first visualize the relationship to assess its shape, then test whether a nonlinear model better captures the observed pattern. Results suggest that while uptake generally increases with temperature, the relationship is not strictly linear, indicating potential physiological or environmental constraints at higher temperatures.
+
+Carbon uptake increases with temperature up to a point, after which gains diminish or reverse. <!--potential add in: This is supported by the higher R² value of the quadratic model (R² = 0.21) compared to the linear model (R² = 0.16), indicating that a nonlinear relationship better explains variation in NPP. -->
+
+While temperature influences carbon uptake through physiological processes, solar radiation directly drives photosynthesis. We next examine how different types of solar radiation relate to NPP.
+
+## Analysis 2
+
+**How do direct and diffuse solar radiation influence net primary production (NPP), and which has a stronger relationship?**
+
+```{r}
+#| label: Direct Solar vs NPP
+
+direct <- ggplot(watershed, aes(x = direct_solar, y = NPP)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Direct Solar Radiation vs NPP", 
+    x = "Direct Solar Radiation", 
+    y = "Net Primary Production (NPP)"
+  ) +
+  theme_minimal()
+
+direct
+```
+
+```{r}
+#| label: Diffuse solar vs NPP
+
+diffuse <- ggplot(watershed, aes(x = diffuse_solar, y = NPP)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Diffuse Solar Radiation vs NPP",
+    x = "Diffuse Solar Radiation",
+    y = "Net Primary Production (NPP)"
+  ) +
+  theme_minimal()
+
+diffuse
+```
+
+The positive regression slopes from the linear models indicate that increases in both direct and diffuse solar radiation are associated with increases in NPP, with diffuse radiation showing a steeper relationship.
+
+```{r}
+#| label: Solar Comparision
+
+solar <- ggplot(watershed) +
+  geom_point(aes(x = direct_solar, y = NPP), 
+             color = "blue", alpha = 0.2) +
+  geom_point(aes(x = diffuse_solar, y = NPP), 
+             color = "red", alpha = 0.2) +
+  geom_smooth(aes(x = direct_solar, y = NPP, color = "Direct"), 
+              method = "lm", se = FALSE, linewidth = 1.5) +
+  geom_smooth(aes(x = diffuse_solar, y = NPP, color = "Diffuse"), 
+              method = "lm", se = FALSE, linewidth = 1.5) +
+  scale_color_manual(values = c("Direct" = "blue4", "Diffuse" = "red4")) +
+  labs(
+    title = "Direct vs Diffuse Solar and NPP",
+    x = "Solar Radiation",
+    y = "Net Primary Production (NPP)",
+    color = "Solar Type"
+  ) +
+  theme_minimal()
+
+solar
+
+```
+
+Because direct and diffuse solar radiation occur over different ranges, the comparison plot should be interpreted primarily in terms of trend rather than absolute position.
+
+```{r}
+#| label: Solar Stats ~ Correlation
+
+cor(watershed$direct_solar, watershed$NPP, use = "complete.obs")
+cor(watershed$diffuse_solar, watershed$NPP, use = "complete.obs")
+
+```
+
+```{r}
+#| label: Solar Stats ~ lm
+
+lm_direct <- lm(NPP ~ direct_solar, data = watershed)
+lm_diffuse <- lm(NPP ~ diffuse_solar, data = watershed)
+
+summary(lm_direct)
+summary(lm_diffuse)
+```
+
+### Interpretation
+
+Both direct and diffuse solar radiation show significant positive relationships with NPP, indicating that increased solar input is associated with higher carbon uptake. This is supported by moderate positive correlations (r = 0.51 for direct and r = 0.59 for diffuse). However, diffuse solar radiation explains more variation in NPP (R² = 0.35) than direct solar radiation (R² = 0.26), indicating a stronger relationship. This suggests that diffuse light may be more effective at supporting plant productivity, possibly because diffuse light penetrates forest canopies more evenly, allowing for more efficient photosynthesis across leaves.
+
+## Conclusion
+
+In conclusion, both temperature and solar radiation play important roles in shaping ecosystem carbon dynamics. Temperature shows a nonlinear relationship with NPP, suggesting optimal conditions for plant productivity. Solar radiation, particularly diffuse light, demonstrates a strong positive relationship with NPP, highlighting its importance for carbon uptake. Together, these findings illustrate how environmental factors interact to influence forest productivity and carbon cycling.
