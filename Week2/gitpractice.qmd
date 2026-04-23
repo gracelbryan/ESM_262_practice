@@ -4,8 +4,6 @@ format: pdf
 editor: visual
 ---
 
-make this mistake a bit more permeate
-
 ```{r}
 library(here)
 library(tidyverse)
