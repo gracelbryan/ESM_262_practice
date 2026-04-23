@@ -4,8 +4,6 @@ format: pdf
 editor: visual
 ---
 
-make this mistake a bit more permeate
-
 ```{r}
 library(here)
 library(tidyverse)
@@ -25,4 +23,3 @@ mean(p301_yearly$percent_streamflow) # [1] 25.50839
 range(p301_yearly$percent_streamflow) # [1]  0.00000 59.61193
 sd(p301_yearly$percent_streamflow) # [1] 18.96631
 ```
-
