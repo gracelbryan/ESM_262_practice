@@ -1,0 +1,6 @@
+---
+title: "Conflict"
+format: html
+---
+
+Practice Conflict
