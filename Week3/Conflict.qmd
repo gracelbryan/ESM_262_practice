@@ -4,6 +4,4 @@ format: html
 ---
 
 Practice Conflict
-# ???
-
 # conflict from R
