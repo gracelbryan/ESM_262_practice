@@ -1,0 +1,316 @@
+---
+title: "datapractice"
+format: html
+---
+
+```{r}
+library(tidyverse)
+# 
+firestarts = runif(20, min=0, max=100)
+ggplot(data.frame(firestarts=firestarts),
+       aes(firestarts)) + geom_histogram()
+```
+
+```{r}
+#
+otterweight = rnorm(20, mean=10, sd=2)
+ggplot(data.frame(otterweight),
+       aes(otterweight)) + geom_histogram()
+```
+```{r}
+#
+pick = sample(seq(2000,2025), size=2, replace=T)
+pick
+#
+pick = sample(seq(2000,2025), size=20, replace=F)
+pick
+```
+
+```{r}
+# practice
+# write the R code to create test data where we are 
+# Poisson distribution (rpois(lambda=1))
+# 1000 samples, how many encounters?
+
+set.seed(42)
+daily_encounters <- rpois(n=30, lambda = 1)
+daily_encounters
+```
+```{r}
+# 1. Simulate 30 days of bear encounters
+set.seed(42)
+daily_encounters <- rpois(n = 30, lambda = 1)
+total_encounters <- sum(daily_encounters)
+
+# 2. Randomly assign those encounters to 1,000 visitors
+visitor_ids <- sample(1:1000, size = total_encounters, replace = TRUE)
+
+# 3. Find the maximum encounters for any one visitor
+max(table(visitor_ids))
+
+```
+
+```{r}
+data()
+#
+#
+data(airquality)
+#
+help(airquality)
+#
+str(airquality)
+
+```
+```{r}
+attributes(airquality)
+```
+```{r}
+ggplot(airquality, aes(x=Temp, y=Ozone)) + geom_point()+ggtitle("Ozone vs. Temp")
+```
+
+```{r}
+ozone_sample = sample(airquality$Ozone, size=5, replace=F)
+ozone_sample
+```
+```{r}
+airquality_clean <- na.omit(airquality)
+
+ozone_sample = sample(1:nrow(airquality_clean), size=5, replace=5)
+ozone_sample
+```
+```{r}
+airquality_clean[ozone_sample,]
+```
+```{r}
+ggplot(airquality_clean, aes(x=Temp, y=Ozone)) + geom_point() +
+  geom_point(data=data.frame(Temp=airquality_clean$Temp[ozone_sample],
+                             Ozone=airquality_clean$Ozone[ozone_sample]), color ="red")
+```
+```{r}
+# find median wind speed
+# sample 10 wind speed measurements
+# compute their median
+
+wind_sample = sample(airquality_clean$Wind, size=10, replace=F)
+wind_sample
+
+wind = median(wind_sample)
+summary(wind) # 7.15
+
+
+wind2 = median(airquality_clean$Wind)
+```
+
+```{r}
+# 1. Clean the data (remove rows with NA)
+airquality_clean <- na.omit(airquality)
+
+# 2. Calculate the TRUE median (Full Dataset)
+wind_full_median <- median(airquality_clean$Wind)
+
+# 3. Calculate the SAMPLE median (10 random measurements)
+set.seed(123) # Optional: keeps the sample the same every time you run it
+wind_sample <- sample(airquality_clean$Wind, size = 10, replace = FALSE)
+wind_sample_median <- median(wind_sample)
+
+# 4. View Results
+cat("Full Dataset Median:", wind_full_median, "\n")
+cat("Sample Median (n=10):", wind_sample_median, "\n")
+
+```
+
+
+```{r}
+#Factors
+a = c(1.3, 1, 4, 1.3, 22)
+mean(a)
+```
+```{r}
+possible.fish = c("salmon","steelhead", "shark", "tuna", "cod")
+
+catch1 = base::sample(possible.fish, size=20, replace=T)
+catch1
+
+summary(catch1)
+
+catch1 = as.factor(catch1)
+
+summary(catch1)
+
+plot(catch1, col="blue")
+
+mean(summary(catch1))
+
+max(summary(catch1))
+
+which.max(summary(catch1))
+
+names(which.max(catch1))
+```
+
+```{r}
+---
+title: "datapractice"
+format: html
+---
+
+```{r}
+library(tidyverse)
+# 
+firestarts = runif(20, min=0, max=100)
+ggplot(data.frame(firestarts=firestarts),
+       aes(firestarts)) + geom_histogram()
+```
+
+```{r}
+#
+otterweight = rnorm(20, mean=10, sd=2)
+ggplot(data.frame(otterweight),
+       aes(otterweight)) + geom_histogram()
+```
+```{r}
+#
+pick = sample(seq(2000,2025), size=2, replace=T)
+pick
+#
+pick = sample(seq(2000,2025), size=20, replace=F)
+pick
+```
+
+```{r}
+# practice
+# write the R code to create test data where we are 
+# Poisson distribution (rpois(lambda=1))
+# 1000 samples, how many encounters?
+
+set.seed(42)
+daily_encounters <- rpois(n=30, lambda = 1)
+daily_encounters
+```
+```{r}
+# 1. Simulate 30 days of bear encounters
+set.seed(42)
+daily_encounters <- rpois(n = 30, lambda = 1)
+total_encounters <- sum(daily_encounters)
+
+# 2. Randomly assign those encounters to 1,000 visitors
+visitor_ids <- sample(1:1000, size = total_encounters, replace = TRUE)
+
+# 3. Find the maximum encounters for any one visitor
+max(table(visitor_ids))
+
+```
+
+```{r}
+data()
+#
+#
+data(airquality)
+#
+help(airquality)
+#
+str(airquality)
+
+```
+```{r}
+attributes(airquality)
+```
+```{r}
+ggplot(airquality, aes(x=Temp, y=Ozone)) + geom_point()+ggtitle("Ozone vs. Temp")
+```
+
+```{r}
+ozone_sample = sample(airquality$Ozone, size=5, replace=F)
+ozone_sample
+```
+```{r}
+airquality_clean <- na.omit(airquality)
+
+ozone_sample = sample(1:nrow(airquality_clean), size=5, replace=5)
+ozone_sample
+```
+```{r}
+airquality_clean[ozone_sample,]
+```
+```{r}
+ggplot(airquality_clean, aes(x=Temp, y=Ozone)) + geom_point() +
+  geom_point(data=data.frame(Temp=airquality_clean$Temp[ozone_sample],
+                             Ozone=airquality_clean$Ozone[ozone_sample]), color ="red")
+```
+```{r}
+# find median wind speed
+# sample 10 wind speed measurements
+# compute their median
+
+#wind_sample = sample(airquality_clean$Wind, size=10, replace=F)
+#wind_sample
+
+#wind = median(wind_sample)
+#summary(wind) # 7.15
+
+
+#wind2 = median(airquality_clean$Wind)
+```
+
+```{r}
+# 1. Clean the data (remove rows with NA)
+airquality_clean <- na.omit(airquality)
+
+# 2. Calculate the TRUE median (Full Dataset)
+wind_full_median <- median(airquality_clean$Wind)
+
+# 3. Calculate the SAMPLE median (10 random measurements)
+set.seed(123) # Optional: keeps the sample the same every time you run it
+wind_sample2 <- sample(airquality_clean$Wind, size = 10, replace = FALSE)
+wind_sample_median <- median(wind_sample2)
+
+summary(wind_full_median)
+summary(wind_sample_median)
+
+```
+
+
+```{r}
+#Factors
+a = c(1.3, 1, 4, 1.3, 22)
+mean(a)
+```
+```{r}
+possible.letters = c("a","c", "e", "g", "i")
+
+letter1 = base::sample(possible.letters, size=10, replace=T)
+letter1
+
+summary(letter1)
+
+letter1 = as.factor(letter1)
+
+summary(letter1)
+
+plot(letter1, col="blue")
+
+mean(summary(letter1))
+
+max(summary(letter1))
+
+which.max(summary(letter1))
+
+names(which.max(letter1))
+```
+
+```{r}
+a = as.factor(c(1.3, 1, 4, 1.3, 22))
+summary(a)
+
+b = as.numeric(a)
+summary(b)
+
+```
+```{r}
+examplestring = "River Otters"
+nchar(examplestring)
+```
+```{r}
+sprintf("We found %d %s %3.1f miles from shore", 4, "Otters", 18.95632342)
+```
+
