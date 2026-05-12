@@ -1,0 +1,266 @@
+---
+title: "looping2"
+format: html
+---
+
+# **Lecture 5.1: Looping**
+
+## **Looping**
+
+A programming *building* block
+
+Used to repeat instructions. In environmental science, often used for calculations that involve:
+
+- space (loop over location)
+- time (loop through time)
+- time and space
+
+## **Steps Looping**
+
+1.  design a data structure to store results: sometimes this is automatic but not always
+2.  read in (or generate test data) the data
+3.  find ways to repeat things efficiently
+
+## **Looping 'Behind' The Scene**
+
+- column manipulation with data frames
+- *dplyr* and *purr* family of functions in R
+
+## **Nesting Loops**
+
+Loops can be "nested" with one loop inside the other
+
+Examples:
+
+- doing something to each row AND each column
+
+- doing something to each location AND each time step
+
+- doing something across categories AND through time
+
+## **Syntax in R**
+
+for (i in 1:nrow) {
+
+for (j in 1:ncol) {
+
+} }
+
+For each single step of the outer loop, the inner loop runs through all its iterations
+
+So the loop above processes all columns for the first row, then moves to the next row
+
+As before you don't need to use i and j - these are just common variable names for counters but you can pick more meaningful ones
+
+## **Sample Example of Nested Loops**
+
+```{r}
+# simple example of nested loops - compute
+# the sum of all the elements in a matrix keeping track of something at each location
+# create some sample data
+ntime = 5
+nlocation = 3
+# matrix function in R lets you initialize with data
+# here we are creating a matrix with nlocation rows and nobs columns, filled with integers between 1 and 10
+creatureobs = matrix(sample(1:10, ntime*nlocation, replace=TRUE), nrow=nlocation)
+colnames(creatureobs) = c("time1", "time2", "time3", "time4", "time5")
+rownames(creatureobs) = c("east", "west", "north")
+# check to see that it is a matrix with rows and columns
+str(creatureobs)
+
+creatureobs
+```
+
+```{r}
+# nested for loop: use t as counter for time; l as counter for location
+# initialization
+# outer loop for location
+totalsum = 0
+for (l in 1:nlocation) {
+  # inner loop for observations
+  for (t in 1:ntime) {
+     totalsum = totalsum + creatureobs[l,t]
+  }
+}
+totalsum
+```
+
+```{r}
+## to see if work print out at each location and time step
+totalsum = 0
+for (l in 1:nlocation) {
+  # inner loop for observations
+  for (t in 1:ntime) {
+     totalsum = totalsum + creatureobs[l,t]
+     # use sprintf to print out the location, time, and sum so far, cat just prints out the string
+     cat(sprintf("\nfor counter l=%d t=%d, location: %s, time: %s, sum so far: %s", l, t, rownames(creatureobs)[l], colnames(creatureobs)[t], totalsum))
+  }
+}
+
+totalsum
+
+# R can do these for loops internally when you do
+sum(creatureobs)
+```
+
+## **Slightly More Complex Example**
+
+Imagine we have running speeds of a species for different points in a transect
+
+Observations are given to you in a matrix where rows are locations in the transect and columns are observations of speeds at each location for different individuals
+
+1.  Find number of times speeds were above the hunting threshold anywhere (easy)
+
+- just count all values in the matrix above threshold (e.g. sum(matrix \>= threshold))
+- could do without a loop
+
+2.  Find how often neighboring locations had speeds above the hunting threshold at the same time (harder)
+
+- need to loop through each location and observation and check if neighboring location also had a speed above the threshold at that time
+- loops make this easy because you can go back and forth in time with your counter!
+
+## **Start With #1**
+
+*find number of times speeds were above the hunting threshold anywhere (easy)*
+
+```{r}
+# create some sample data
+nobs = 4
+nlocation = 5
+#matrix function in R lets you initialize with data
+creatureobs = matrix(runif(nobs*nlocation, min=0, max=100), nrow=nlocation)
+#check to see that it is a matrix with rows and columns
+str(creatureobs)
+
+creatureobs
+```
+
+```{r}
+# nested for loop: use o as counter for observation; l as counter for location
+# outer loop for location
+hunting_speed = 60
+num_hunting_speeds = 0
+for(l in 1:nlocation) {
+  # inner loop for observations
+  for (o in 1:nobs) {
+    num_hunting_speeds = num_hunting_speeds + ifelse(creatureobs[l,o] >= hunting_speed, 1,0)
+  }
+}
+
+num_hunting_speeds
+
+# as percent
+num_hunting_speeds/(nobs*nlocation)*100
+```
+
+## **Now Let's Try The Harder Task**
+
+```{r}
+# nested for loop: use o as counter for observation; l as counter for location
+# outer loop for location
+num_hunting_speeds_neighbors=0
+
+# notice that we only go to the second last location
+for (l in 1:(nlocation-1)) {
+  # inner loop for observations
+  for (o in 1:nobs) {
+      if (creatureobs[l,o] >= hunting_speed & creatureobs[l+1,o] > hunting_speed) {
+         checkneigh = 1
+      } else {
+         checkneigh = 0
+      }
+     num_hunting_speeds_neighbors = num_hunting_speeds_neighbors + checkneigh
+  }
+}
+num_hunting_speeds_neighbors
+
+# as percent of all observations
+num_hunting_speeds_neighbors/((nobs*(nlocation-1)))*100
+```
+
+## **A Bit More On Nesting Loops**
+
+We could even have multiple levels of nesting - think about doing something to a 3-dimensional matrix of time and space (x,y) For (x in 1:nrow) { For (y in 1:ncol) { For (t in 1:ntime) { ... } } }
+
+To Illustrate
+
+```{r}
+# a 3-dimensional array: space (x=20, y=30) and time (10 steps)
+ocean = array(dim=c(20,30,10))
+str(ocean)
+```
+
+```{r}
+# fill with simulated temperature data using nested loops
+for (x in 1:nrow(ocean)) {
+  for (y in 1:ncol(ocean)) {
+    for (t in 1:dim(ocean)[3]) {
+      ocean[x,y,t] = rnorm(mean=16+t, sd=2, n=1)
+      # imagine running a model to estimate ocean temperature
+      # then feeding it into a model that uses that temperature to impact corals
+    }
+  }
+}
+```
+
+## **Different Types Of Loops**
+
+- *for* - works with a counter to decide how many times to repeat
+- *while* - repeats until a condition is met
+
+## **While Loop**
+
+Goes through the loop until a condition is met
+
+- useful for when you don't know how many times you need to repeat something but you want to keep going until a condition is met.
+- often for simulations where you want to keep going until you reach a threshold or a certain outcome
+
+## **Format for *While***
+
+while(condition) { ... }
+
+## **Example Of While Loop**
+
+Imagine trying to estimate how long it will take for a water quality threshold to be exceeded when there is a leak of pollution into a lake;
+
+- You have an estimate of how much pollution is added each day; (**pol_in**)
+- You also know that the pollution is removed at a certain rate each day; (**pol_out**) but removal efficacy depend on the air temperature that day
+  - removal is pol_out = pol_out,base \* (1 + 0.01 \* air_temp)
+- You know air temperature is normally distributed mean 20 degrees Celsius and standard deviation of 5 degrees Celsius
+- You want to know how long it will take for the pollution to exceed the threshold
+
+**NOTE:** I'm also going to add a check to stop if too many days pass! (we will talk about why)
+
+```{r}
+# initialize parameters
+pol_in = 10 # pollution added each day
+pol_out_base = 5 # base pollution removed each day
+threshold = 100 # pollution threshold
+
+# initialize pollution level and day counter
+pollution_level = 0
+day = 0
+
+maxday =365
+# while loop to simulate pollution levels over time
+# we use && for AND because we want to check both conditions - that pollution level is below threshold and that we haven't exceeded max days
+
+while ((pollution_level < threshold) && (day < maxday)) {
+  # update pollution level
+  air_temp = rnorm(mean=20, sd=5, n=1) #
+  pol_out = pol_out_base * (1 + 0.01*air_temp) # calculate pollution removed based on air temp
+  pollution_level = pollution_level + pol_in - pol_out # update pollution level
+  day = day + 1 # increment day counter
+}
+cat(sprintf("It takes %d days for pollution to exceed the threshold of %d, final level: %.1f", day, threshold, pollution_level))
+```
+
+## **Why Do We Need A Check For Max Days?**
+
+What if pollutant level never exceeds threshold?
+
+Infinite Loop!
+
+You can often use 'crtl C' to break out of an infinite loop
+
+It is better to have a check in your code to stop if you exceed a certain number of iterations
