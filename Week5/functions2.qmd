@@ -1,0 +1,305 @@
+---
+title: "functions2"
+format: html
+---
+
+# FUNCTIONS
+
+## PROGRAMMING ALWAYS STARTS…
+
+{STYLE=“COLOR:ORANGE”}
+
+- What is the goal
+- How can you break this goal into sub-task
+- For the overall project and each sub-task
+  - What are the inputs
+  - What are the outputs
+
+## MODULARITY
+
+Programs are made up of building blocks
+
+When you start a programming/data science project - you should begin by:
+
+- Breaking your goal down into individual pieces
+- Identifying instructions that can be reused
+- Identify tasks that might be useful to others
+- Identify tasks that you might want to be able to substitute different methods for
+
+## QUESTIONS ABOUT FUNCTIONS SO FAR
+
+Homework
+
+Lets generate a function that makes use of categorical data species diversity is a good example
+
+Diversity (D) measures the probability that two individuals randomly selected from a sample will belong to the same species
+
+To get value is between 0 and 1, with lower values associated with lower diversity 1-D from Assignment (Simpson Index)
+
+## MY VERSION
+
+```{r}
+library(here)
+library(tidyverse)
+
+source(here("Week5/compute_diversity.R"))
+compute_diversity
+```
+
+```{r}
+possible.fish = as.factor(c("salmon","steelhead","shark","tuna","cod"))
+# simulate a random recording of catch by fisherman
+
+# we can control sample probablities as long as it sums to 1 - here we have a mix of fish but cod is most common
+
+# to do this we assign probabities to each fish 
+# high prob more likely to be sampled
+# probabilities must sum to 1 
+catch1 = sample(possible.fish, size=10, prob = c(0.2, 0.2, 0.1, 0.1, 0.4), replace=T)
+
+# lets create a test case that should have low diversity, making most fish salmon
+catch2 = sample(possible.fish, size=10, prob = c(0.8, 0.05, 0.05, 0.05, 0.05), replace=T)
+
+# note that the diversity index works 'backwards' - higher values are less diverse 
+compute_diversity(catch1)
+
+compute_diversity(catch2)
+```
+
+## RETURNING VALUES FROM A FUNCTION
+
+return(value) - but what if you want to return multiple items
+
+Diversity and most frequent species?
+
+In R -We use Lists
+
+## LISTS
+
+- Lists are the most “informal” data structures in R
+- List are really useful for keeping track of and organizing groups of things that are not all the same
+- A list could be a table where number of rows is different for each column
+- A list can have numeric, character, factors all mixed together
+- List are often used for returning more complex information from function (e.g. lm)
+
+## EXAMPLE OF LISTS
+
+```{r}
+# make a list
+
+sale = list(id=2, quality="high", contents=c("apple", "cherry"), cost=c(4,5))
+
+sale
+```
+
+```{r}
+# ways to access elements
+
+sale$id
+
+sale$what
+```
+
+```{r}
+# you can also access by list item number
+# the [x] denotes the xth item in the list
+
+sale[[3]]
+
+sale[["contents"]]
+
+sale$contents[2]
+
+sale[[3]][2]
+```
+
+```{r}
+# how do you get the second element in the vector that has the contents
+# there are two ways
+
+# add to a list
+sale$location = "Farmers market"
+sale
+```
+
+```{r}
+# or remove
+sale$location = NULL
+sale
+```
+
+```{r}
+# some tricky things
+# correct accessing items in list
+sale$cost
+
+sale[[4]]
+```
+
+```{r}
+# works but
+# sale[4]
+
+sum(sale$cost)
+
+sum(sale[[4]])
+```
+
+## FOR NOW - KEY PARTS OF LIST
+
+- Lists can contain different types of data (numeric, character, factors, vectors, data frames, other lists)
+- In R to create a list mylist = list(name=“Bob”, age=30, hobbies=c(“fishing”,“hiking”), scores=data.frame(test1=c(90,80), test2=c(85,95)))
+- to access something in a list - two options mylist$name mylist[[“name”]]
+
+There is more to say about lists but this is all we need for now
+
+## USING LISTS TO RETURN MULTIPLE ITEMS FROM A FUNCTION
+
+We can return a list from a function to give the user multiple pieces of information
+
+```{r}
+# a function that returns the max and min of a vector of numbers
+minmax = function(x) {
+  minx = min(x)
+  maxx = max(x)
+  return(list(min=minx, max=maxx))
+}
+
+minmax(c(3,5,2,8,1))
+```
+
+## MORE COMPLEX EXAMPLE
+
+Lets say we want to compute a water quality index that is based on multiple measurements (e.g. temperature, dissolved oxygen, turbidity)
+
+- check if each measurement is above, within, or below a threshold range
+- return rating for each measurement (e.g. good, moderate, poor if above, within, or below threshold)
+- return an overall numeric rating
+- return an overall index of water quality (e.g. good, moderate, poor)
+
+Look through function - and ask you neighbor any questions
+
+```{r}
+# Source the function
+source(here("Week5/analyze_water_quality.R"))
+
+# --- Use defaults (most common case) ---
+results <- analyze_water_quality(ph = 7.2, dissolved_oxygen = 8.5, turbidity = 2.1)
+results
+```
+
+```{r}
+# --- Override one limit, e.g. stricter turbidity standard for drinking water ---
+results_strict <- analyze_water_quality(
+  ph = 7.2, dissolved_oxygen = 8.5, turbidity = 2.1,
+  turbidity_max = 1.0
+)
+results_strict
+```
+
+## MY ANSWER
+
+```{r}
+library(tidyverse)
+# repeat with a list
+source(here("Week5/summarize_diversity.R"))
+
+# lets compare two catches - with different levels of diversity
+possible.fish =c("salmon","steelhead","shark","tuna","cod")
+
+# we can control sample probablities as long as it sums to 1 - here we have a mix of fish but cod is most common
+
+# to do this we assign probabities to each fish 
+# high prob more likely to be sampled
+# probabilities must sum to 1 
+catch1 = sample(possible.fish, size=10, prob = c(0.2, 0.2, 0.1, 0.1, 0.4), replace=T)
+
+# lets create a test case that should have low diversity, making most fish steelhead
+catch2 = sample(possible.fish, size=10, prob = c(0.1, 0.7, 0.1, 0.1, 0.1), replace=T)
+
+summarize_diversity
+```
+
+```{r}
+# run function and save results to a variable
+d1 = summarize_diversity(catch1)
+d2 = summarize_diversity(catch2)
+d1
+
+d2
+
+# just index
+d1$simpson
+
+d2$simpson
+```
+
+```{r}
+source(here("Week5/practice.R"))
+
+possible.tree = c("oak", "maple", "pine", "cherry")
+
+forest1 = sample(possible.tree, size = 15, prob = c(0.2, 0.2, 0.2, 0.4), replace=T)
+
+summarize.diversity
+
+d1 = summarize.diversity(forest1)
+
+d1
+
+d1$simpson
+
+```
+
+```{r}
+timber = list(id = 4, quality = "high", contents = possible.tree)
+
+timber
+
+forest2 = sample(possible.tree, size = 15, prob = c(0.1, 0.1, 0.6, 0.2), replace=T)
+
+summarize.diversity
+
+d2 = summarize.diversity(forest2)
+
+d2
+
+d2$simpson
+```
+
+## OTHER WAYS TO USE FUNCTIONS YOU MIGHT NOT THINK OF
+
+- Use parameters to allow the user to make choices about what to return
+- Use parameters to allow the user to make choices about how to compute something
+- Use parameters to allow the user to make choices about what data to use
+- Use parameters to apply different weighting to an index calculation
+
+## EXAMPLE
+
+Lets let user choose between two different ways to compute the index
+
+and also whether to show a plot of the data or not
+
+```{r}
+library(here)
+library(tidyverse)
+source(here("Week5/summarize_diversity2.R"))
+
+testfish = c("cod","trout","salmon")
+# create a test catch that is dominated by cod, but has some trout and salmon
+testcatch = sample(testfish, size=20, replace=T, prob=c(0.8,0.2,0.2))
+
+# lets compare different ways to compute the index  
+d1 = summarize_diversity(testcatch, index="A")
+d2 = summarize_diversity(testcatch, index="B")
+
+# just look at index
+d1$simpson
+
+d2$simpson
+
+# run with instruction to plot
+d3 = summarize_diversity(testcatch, index="B", showplot=TRUE)
+d3$plt
+```
+
