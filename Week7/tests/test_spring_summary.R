@@ -67,3 +67,5 @@ test_that(
     expect_that(spring_summary(clim_data, spring_months=c(4))$warmest_spring, equals(2002))
   }
 )
+
+
